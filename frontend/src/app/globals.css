@@ -1,0 +1,64 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f5f5f8;
+  --bg-subtle: #ececf3;
+  --card-bg: #ffffff;
+  --text: #57576b;
+  --text-h: #17171f;
+  --border: #e6e6ee;
+  --accent: #6d5efc;
+  --accent-2: #9b8cff;
+  --accent-bg: rgba(109, 94, 252, 0.1);
+  --success: #16a34a;
+  --success-bg: rgba(22, 163, 74, 0.12);
+  --danger: #e2453c;
+  --danger-bg: rgba(226, 69, 60, 0.1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #121218;
+    --bg-subtle: #1a1a22;
+    --card-bg: #1c1c25;
+    --text: #b7b7c6;
+    --text-h: #f4f4f8;
+    --border: #2c2c38;
+    --accent: #9b8cff;
+    --accent-2: #7c6bff;
+    --accent-bg: rgba(155, 140, 255, 0.16);
+    --success: #4ade80;
+    --success-bg: rgba(74, 222, 128, 0.15);
+    --danger: #f87171;
+    --danger-bg: rgba(248, 113, 113, 0.14);
+  }
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-bg-subtle: var(--bg-subtle);
+  --color-card: var(--card-bg);
+  --color-text: var(--text);
+  --color-text-h: var(--text-h);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-accent-2: var(--accent-2);
+  --color-accent-bg: var(--accent-bg);
+  --color-success: var(--success);
+  --color-success-bg: var(--success-bg);
+  --color-danger: var(--danger);
+  --color-danger-bg: var(--danger-bg);
+  --font-sans: var(--font-pretendard), system-ui, "Segoe UI", Roboto, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background:
+    radial-gradient(1200px 480px at 50% -10%, var(--accent-bg), transparent 60%),
+    var(--background);
+  color: var(--text);
+  font-family: var(--font-sans);
+}
