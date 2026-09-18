@@ -79,6 +79,7 @@ function CreditLimitCard({ status }: { status: CalculatedStatus["generalSelectio
 export default function Dashboard({
   department,
   admissionYear,
+  isVerified,
   current,
   projected,
   certificationAreas,
@@ -86,6 +87,7 @@ export default function Dashboard({
 }: {
   department: string;
   admissionYear: number;
+  isVerified: boolean;
   current: CalculatedStatus;
   projected: CalculatedStatus;
   certificationAreas: CertificationArea[];
@@ -99,7 +101,7 @@ export default function Dashboard({
     <div className="flex flex-col gap-5">
       <div
         className={`flex items-center gap-3 rounded-2xl p-5 text-white shadow-md ${
-          status.isGraduationReady
+          status.isGraduationReady && isVerified
             ? "bg-gradient-to-br from-success to-emerald-500"
             : "bg-gradient-to-br from-accent to-accent-2"
         }`}
@@ -107,9 +109,19 @@ export default function Dashboard({
         <span className="text-2xl">{status.isGraduationReady ? "🎉" : "📋"}</span>
         <span className="text-sm">
           <strong>{department}</strong> ({admissionYear}학번) —{" "}
-          {status.isGraduationReady ? "졸업요건을 모두 충족했습니다!" : "아직 부족한 요건이 있습니다"}
+          {!isVerified
+            ? "전용 졸업요건은 아직 반영되지 않았습니다"
+            : status.isGraduationReady
+              ? "졸업요건을 모두 충족했습니다!"
+              : "아직 부족한 요건이 있습니다"}
         </span>
       </div>
+
+      {!isVerified && (
+        <p className="-mt-2 text-xs text-danger">
+          아래 계산 결과는 현재 구현된 컴퓨터공학전공 2022학번 기준입니다.
+        </p>
+      )}
 
       <div className="flex gap-1 self-start rounded-full bg-bg-subtle p-1">
         <button

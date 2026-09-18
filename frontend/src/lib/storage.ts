@@ -1,5 +1,11 @@
 import { buildRequirements } from "./defaultRequirements";
-import type { CourseTakeStatus, GeneralCourseEntry, StudentData } from "./types";
+import { resolveAcademicUnit } from "./academicUnits";
+import type {
+  CourseTakeStatus,
+  GeneralCourseEntry,
+  Requirements,
+  StudentData,
+} from "./types";
 
 const STORAGE_KEY = "gradcalc:v2:data";
 
@@ -22,23 +28,37 @@ function save(data: StudentData) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 }
 
+function preserveCertificationScores(
+  requirements: Requirements,
+  previous?: Requirements
+): Requirements {
+  const scoreByArea = new Map(
+    previous?.certificationAreas.map((area) => [area.id, area.score]) ?? []
+  );
+  return {
+    ...requirements,
+    certificationAreas: requirements.certificationAreas.map((area) => ({
+      ...area,
+      score: scoreByArea.get(area.id) ?? area.score,
+    })),
+  };
+}
+
 function normalizeData(data: Partial<StudentData>): StudentData {
   const admissionYear = data.requirements?.admissionYear ?? 2022;
-  const requirements = buildRequirements(admissionYear);
-  const scoreByArea = new Map(
-    data.requirements?.certificationAreas?.map((a) => [a.id, a.score]) ?? []
+  const academicUnit = resolveAcademicUnit(
+    data.requirements?.school,
+    data.requirements?.department
+  );
+  const requirements = preserveCertificationScores(
+    buildRequirements(admissionYear, academicUnit.school, academicUnit.department),
+    data.requirements
   );
   const fieldTrainingCredits = Number(data.fieldTraining?.credits);
   const fieldTrainingStatus = data.fieldTraining?.status;
 
   return {
-    requirements: {
-      ...requirements,
-      certificationAreas: requirements.certificationAreas.map((a) => ({
-        ...a,
-        score: scoreByArea.get(a.id) ?? a.score,
-      })),
-    },
+    requirements,
     majorCourseStatus: data.majorCourseStatus ?? {},
     generalCourseStatus: data.generalCourseStatus ?? {},
     generalCourses: (data.generalCourses ?? []).map((course) => ({
@@ -59,7 +79,7 @@ function normalizeData(data: Partial<StudentData>): StudentData {
   };
 }
 
-// 개인정보(학번 뒷자리, 이름 등)는 저장하지 않는다 — 입학년도(연도)만 선택해서 저장.
+// 이름이나 학번 뒷자리 같은 개인정보는 저장하지 않는다.
 export function initData(admissionYear: number): StudentData {
   const data: StudentData = {
     requirements: buildRequirements(admissionYear),
@@ -74,8 +94,15 @@ export function initData(admissionYear: number): StudentData {
 
 export function changeAdmissionYear(admissionYear: number): StudentData {
   const current = loadData();
+  const academicUnit = resolveAcademicUnit(
+    current?.requirements.school,
+    current?.requirements.department
+  );
   const next: StudentData = {
-    requirements: buildRequirements(admissionYear),
+    requirements: preserveCertificationScores(
+      buildRequirements(admissionYear, academicUnit.school, academicUnit.department),
+      current?.requirements
+    ),
     majorCourseStatus: current?.majorCourseStatus ?? {},
     generalCourseStatus: current?.generalCourseStatus ?? {},
     generalCourses: current?.generalCourses ?? [],
@@ -83,6 +110,25 @@ export function changeAdmissionYear(admissionYear: number): StudentData {
   };
   save(next);
   return next;
+}
+
+export function changeAcademicUnit(school: string, department: string): StudentData {
+  const current = loadData();
+  if (!current) throw new Error("초기화되지 않았습니다.");
+  const academicUnit = resolveAcademicUnit(school, department);
+  const updated = {
+    ...current,
+    requirements: preserveCertificationScores(
+      buildRequirements(
+        current.requirements.admissionYear,
+        academicUnit.school,
+        academicUnit.department
+      ),
+      current.requirements
+    ),
+  };
+  save(updated);
+  return updated;
 }
 
 export function setMajorCourseStatus(

@@ -25,7 +25,7 @@ export default function Onboarding({
         <div className="mb-5">
           <label className="mb-2 block text-sm font-semibold text-text-h">학과</label>
           <div className="rounded-xl border border-border bg-bg-subtle px-4 py-3 text-sm text-text-h">
-            컴퓨터공학과 <span className="text-text/50">(현재는 이 학과만 지원)</span>
+            컴퓨터공학전공 <span className="text-text/50">(현재는 이 전공만 계산 지원)</span>
           </div>
         </div>
 

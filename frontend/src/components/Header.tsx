@@ -12,10 +12,12 @@ export type TabId = (typeof TABS)[number]["id"];
 
 export default function Header({
   admissionYear,
+  department,
   tab,
   onTabChange,
 }: {
   admissionYear: number;
+  department: string;
   tab: TabId;
   onTabChange: (tab: TabId) => void;
 }) {
@@ -23,10 +25,12 @@ export default function Header({
     <header className="sticky top-0 z-10 w-full border-b border-border bg-background/85 backdrop-blur-md">
       <div className="mx-auto max-w-3xl px-5 pb-3 pt-4">
         <div className="mb-3 flex items-center justify-between gap-3">
-          <h1 className="flex items-center gap-2 text-lg font-bold text-text-h">
+          <h1 className="flex shrink-0 items-center gap-2 text-lg font-bold text-text-h">
             🎓 졸업요건 계산기
           </h1>
-          <span className="text-xs text-text/60">{admissionYear}학번 · 컴퓨터공학과</span>
+          <span className="min-w-0 text-right text-xs text-text/60">
+            {admissionYear}학번 · {department}
+          </span>
         </div>
         <nav className="flex gap-1 overflow-x-auto rounded-full bg-bg-subtle p-1">
           {TABS.map((t) => (

@@ -6,6 +6,7 @@ import type {
   Requirements,
 } from "./types";
 import { majorCourseEquivalentsByCode } from "./majorCourseEquivalents";
+import { DEFAULT_DEPARTMENT, DEFAULT_SCHOOL } from "./academicUnits";
 
 // 컴퓨터공학과 22학번 기준. 출처: 순천대학교 「2022학년도 교육과정」책자
 // ([별표 1] 학과·학부(전공)별 졸업소요학점 구성표 p.26, 컴퓨터공학과 전공 교육과정편성표 p.157),
@@ -332,13 +333,18 @@ export const certificationAreas22: CertificationArea[] = [
 export const certificationRule22 =
   "순천대학교 졸업자격 인증제 운영 지침(2015.5.18 제정, 2019.11.28 개정) 제3조: 4개 영역 중 1개 영역 이상 선택하여 인증 (여러 영역 점수 합산 불가). 각 영역 향림취업향상포인트 100점 이상이면 인증.";
 
-export function buildRequirements(admissionYear: number): Requirements {
+export function buildRequirements(
+  admissionYear: number,
+  school = DEFAULT_SCHOOL,
+  department = DEFAULT_DEPARTMENT
+): Requirements {
   // TODO: 추후 학번별로 실제 교육과정이 다르면 연도별 템플릿을 분리할 것.
   // 지금은 2022학번 자료만 검증되어 있고, 다른 학번은 같은 템플릿을 임시로 재사용한다.
   return {
-    department: "컴퓨터공학과",
+    school,
+    department,
     admissionYear,
-    isVerified: admissionYear === 2022,
+    isVerified: admissionYear === 2022 && department === DEFAULT_DEPARTMENT,
     totalCreditsRequired: 130,
     generalCreditsRequired: 30,
     generalSelectionCreditLimit: 20,

@@ -69,12 +69,18 @@ export default function Home() {
 
   return (
     <>
-      <Header admissionYear={data.requirements.admissionYear} tab={tab} onTabChange={setTab} />
+      <Header
+        admissionYear={data.requirements.admissionYear}
+        department={data.requirements.department}
+        tab={tab}
+        onTabChange={setTab}
+      />
       <main className="mx-auto w-full max-w-3xl flex-1 px-5 py-6">
         {tab === "dashboard" && current && projected && (
           <Dashboard
             department={data.requirements.department}
             admissionYear={data.requirements.admissionYear}
+            isVerified={data.requirements.isVerified}
             current={current}
             projected={projected}
             certificationAreas={data.requirements.certificationAreas}
@@ -125,7 +131,12 @@ export default function Home() {
 
         {tab === "settings" && (
           <Settings
+            school={data.requirements.school}
+            department={data.requirements.department}
             admissionYear={data.requirements.admissionYear}
+            onChangeAcademicUnit={(school, department) =>
+              setData(storage.changeAcademicUnit(school, department))
+            }
             onChangeYear={(year) => setData(storage.changeAdmissionYear(year))}
           />
         )}

@@ -65,9 +65,10 @@ export interface CertificationArea {
 }
 
 export interface Requirements {
+  school: string;
   department: string;
   admissionYear: number;
-  isVerified: boolean; // 실제 학교 자료로 검증된 학번인지 (지금은 2022만 true)
+  isVerified: boolean; // 학과와 학번 조합이 실제 학교 자료로 검증되었는지
   totalCreditsRequired: number;
   generalCreditsRequired: number;
   generalSelectionCreditLimit: number;

@@ -18,7 +18,7 @@
 
 ## 기술 스택
 
-Next.js (App Router) + TypeScript + Tailwind CSS. AI는 OpenAI API (`/api/chat` 서버 라우트에서만
+Next.js (App Router) + TypeScript + Tailwind CSS. AI는 Gemini API (`/api/chat` 서버 라우트에서만
 호출, 키가 클라이언트에 노출되지 않음). 배포는 Vercel 권장.
 
 ## 실행 방법
@@ -30,10 +30,12 @@ npm run dev
 ```
 
 http://localhost:3000 에서 확인. AI 상담 기능을 쓰려면 `frontend/.env.local`에 아래처럼
-OpenAI API 키를 넣어야 함 (본인 키 필요 — 이 세션에서 대신 발급/설정하지 않았음):
+Gemini API 키를 넣어야 함 (Google AI Studio에서 발급):
 
 ```
-OPENAI_API_KEY=sk-...
+GEMINI_API_KEY=
+GEMINI_MODEL=gemini-3.6-flash
+GEMINI_FALLBACK_MODEL=gemini-3.5-flash-lite
 ```
 
 키가 없어도 AI 상담 탭만 안내 메시지가 뜨고, 나머지 기능(전공/교양 입력, 졸업요건 계산)은 그대로
@@ -69,6 +71,6 @@ OPENAI_API_KEY=sk-...
     기본 졸업요건, 계산 로직(현재/수강예정 두 버전), AI에게 넘길 요약 텍스트 생성
   - `src/lib/storage.ts` — localStorage 기반 저장 (개인 식별자 없이 단일 프로필)
   - `src/components/` — Onboarding, Header, Dashboard, MajorCourses, GeneralCourses, ChatWidget, Settings
-  - `src/app/api/chat/route.ts` — OpenAI 호출 서버 라우트 (API 키는 여기서만 사용)
+  - `src/app/api/chat/route.ts` — Gemini 호출 서버 라우트 (API 키는 여기서만 사용)
 - `backend/` — 이전에 만들었던 Express + SQLite 서버(회원가입/로그인 방식). 지금은 전혀 사용하지
   않지만 참고용으로 남겨둠.
