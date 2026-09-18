@@ -16,6 +16,12 @@
   --danger-bg: rgba(226, 69, 60, 0.1);
 }
 
+@media (min-width: 1600px) {
+  html {
+    font-size: 110%;
+  }
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #121218;

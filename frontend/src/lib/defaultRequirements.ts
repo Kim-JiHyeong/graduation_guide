@@ -341,6 +341,7 @@ export function buildRequirements(admissionYear: number): Requirements {
     isVerified: admissionYear === 2022,
     totalCreditsRequired: 130,
     generalCreditsRequired: 30,
+    generalSelectionCreditLimit: 20,
     majorCreditsRequired: 70,
     majorRequiredCreditsRequired: 36,
     majorCourses: majorCourses22,

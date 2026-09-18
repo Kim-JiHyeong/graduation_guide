@@ -70,6 +70,7 @@ export interface Requirements {
   isVerified: boolean; // 실제 학교 자료로 검증된 학번인지 (지금은 2022만 true)
   totalCreditsRequired: number;
   generalCreditsRequired: number;
+  generalSelectionCreditLimit: number;
   majorCreditsRequired: number; // 전공필수 + 전공선택 합계 최소
   majorRequiredCreditsRequired: number; // 전공필수만
   majorCourses: MajorCourseDef[];
@@ -84,6 +85,8 @@ export interface GeneralCourseEntry {
   name: string;
   credits: number;
   status: CourseTakeStatus;
+  areaId: string;
+  areaName: string;
 }
 
 export interface FieldTrainingState {
@@ -106,6 +109,14 @@ export interface MetricResult {
   isSatisfied: boolean;
 }
 
+export interface CreditLimitResult {
+  label: string;
+  completed: number;
+  limit: number;
+  applied: number;
+  isWithinLimit: boolean;
+}
+
 export interface GeneralRequirementIssue {
   id: string;
   label: string;
@@ -119,6 +130,7 @@ export interface CalculatedStatus {
   majorRequired: MetricResult;
   commonGeneral: MetricResult;
   advancedGeneral: MetricResult;
+  generalSelection: CreditLimitResult;
   missingMajorRequired: MajorCourseDef[];
   missingGeneralRequirements: GeneralRequirementIssue[];
   certificationSatisfied: boolean;

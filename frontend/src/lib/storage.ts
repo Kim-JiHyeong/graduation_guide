@@ -41,7 +41,11 @@ function normalizeData(data: Partial<StudentData>): StudentData {
     },
     majorCourseStatus: data.majorCourseStatus ?? {},
     generalCourseStatus: data.generalCourseStatus ?? {},
-    generalCourses: data.generalCourses ?? [],
+    generalCourses: (data.generalCourses ?? []).map((course) => ({
+      ...course,
+      areaId: course.areaId ?? "general_unclassified",
+      areaName: course.areaName ?? "교양-영역 미지정",
+    })),
     fieldTraining: {
       credits:
         Number.isFinite(fieldTrainingCredits) && fieldTrainingCredits >= 0

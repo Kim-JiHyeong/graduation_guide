@@ -47,6 +47,35 @@ function MetricCard({
   );
 }
 
+function CreditLimitCard({ status }: { status: CalculatedStatus["generalSelection"] }) {
+  const pct = status.limit > 0 ? Math.min((status.completed / status.limit) * 100, 100) : 0;
+  const exceeded = Math.max(status.completed - status.limit, 0);
+
+  return (
+    <div className="rounded-xl bg-accent-bg p-4">
+      <div className="mb-2 flex items-center justify-between text-sm">
+        <span className="font-semibold text-text-h">🧩 {status.label}</span>
+        <span className="text-text-h">
+          {status.completed} / {status.limit}학점
+          {exceeded > 0 && (
+            <span className="ml-2 rounded-full bg-danger-bg px-2 py-0.5 text-xs font-bold text-danger">
+              초과 {exceeded}
+            </span>
+          )}
+        </span>
+      </div>
+      <div className="h-2.5 overflow-hidden rounded-full bg-card">
+        <div
+          className={`h-full rounded-full transition-all duration-300 ${
+            status.isWithinLimit ? "bg-accent" : "bg-danger"
+          }`}
+          style={{ width: `${pct}%` }}
+        />
+      </div>
+    </div>
+  );
+}
+
 export default function Dashboard({
   department,
   admissionYear,
@@ -108,9 +137,6 @@ export default function Dashboard({
           {includePlanned ? "📈 수강예정 과목 포함 현황" : "📊 현재 이수 현황"}
         </h3>
         <MetricCard icon="🎓" status={status.total} />
-        <p className="mt-2 text-xs text-text/60">
-          일반선택은 최대 20학점까지만 이수할 수 있습니다.
-        </p>
 
         <h4 className="mb-2 mt-5 text-sm font-bold text-text-h">전공</h4>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -118,11 +144,17 @@ export default function Dashboard({
           <MetricCard icon="✅" status={status.majorRequired} />
         </div>
 
-        <h4 className="mb-2 mt-5 text-sm font-bold text-text-h">교양</h4>
+        <div className="mb-2 mt-5 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+          <h4 className="text-sm font-bold text-text-h">교양</h4>
+          <p className="text-xs text-text/60">
+            일반선택은 최대 20학점까지만 이수할 수 있습니다.
+          </p>
+        </div>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <MetricCard icon="🎨" status={status.general} />
           <MetricCard icon="📘" status={status.commonGeneral} />
           <MetricCard icon="📚" status={status.advancedGeneral} />
+          <CreditLimitCard status={status.generalSelection} />
         </div>
 
         {status.missingMajorRequired.length > 0 && (

@@ -70,6 +70,7 @@ export function calculateStatus(
   }
 
   let generalCredits = 0;
+  let generalSelectionCredits = 0;
   const completedGeneralCourses = [] as Requirements["generalCourseCatalog"];
   for (const course of requirements.generalCourseCatalog) {
     const status = generalCourseStatus[course.id];
@@ -81,17 +82,33 @@ export function calculateStatus(
 
   for (const entry of generalCourses) {
     if (countsAs(entry.status, includePlanned)) {
-      generalCredits += entry.credits;
+      if (entry.areaId === "general_selection") {
+        generalSelectionCredits += entry.credits;
+      } else {
+        generalCredits += entry.credits;
+      }
     }
   }
 
-  const totalCredits = majorCredits + generalCredits;
+  const appliedGeneralSelectionCredits = Math.min(
+    generalSelectionCredits,
+    requirements.generalSelectionCreditLimit
+  );
+  const totalCredits = majorCredits + generalCredits + appliedGeneralSelectionCredits;
 
   const generalRules = requirements.generalEducationRequirements;
   const completedCodes = new Set(completedGeneralCourses.map((course) => course.code));
   const creditsByArea = new Map<string, number>();
   for (const course of completedGeneralCourses) {
     creditsByArea.set(course.areaId, (creditsByArea.get(course.areaId) ?? 0) + course.credits);
+  }
+  for (const entry of generalCourses) {
+    if (
+      entry.areaId !== "general_selection" &&
+      countsAs(entry.status, includePlanned)
+    ) {
+      creditsByArea.set(entry.areaId, (creditsByArea.get(entry.areaId) ?? 0) + entry.credits);
+    }
   }
 
   const foundationDetails: string[] = [];
@@ -137,9 +154,17 @@ export function calculateStatus(
     }
   }
 
-  const advancedGeneralCredits = completedGeneralCourses
+  const advancedCatalogCredits = completedGeneralCourses
     .filter((course) => course.areaId.startsWith(generalRules.advancedAreaPrefix))
     .reduce((sum, course) => sum + course.credits, 0);
+  const advancedCustomCredits = generalCourses
+    .filter(
+      (entry) =>
+        entry.areaId.startsWith(generalRules.advancedAreaPrefix) &&
+        countsAs(entry.status, includePlanned)
+    )
+    .reduce((sum, entry) => sum + entry.credits, 0);
+  const advancedGeneralCredits = advancedCatalogCredits + advancedCustomCredits;
   const advancedDetails = generalRules.advancedRequiredCourses
     .filter((course) => !completedCodes.has(course.code))
     .map((course) => `${course.name} ${course.credits}학점 미이수`);
@@ -181,6 +206,13 @@ export function calculateStatus(
   advancedGeneral.isSatisfied =
     advancedGeneral.isSatisfied &&
     generalRules.advancedRequiredCourses.every((course) => completedCodes.has(course.code));
+  const generalSelection = {
+    label: "일반선택",
+    completed: generalSelectionCredits,
+    limit: requirements.generalSelectionCreditLimit,
+    applied: appliedGeneralSelectionCredits,
+    isWithinLimit: generalSelectionCredits <= requirements.generalSelectionCreditLimit,
+  };
 
   const isGraduationReady =
     total.isSatisfied &&
@@ -198,6 +230,7 @@ export function calculateStatus(
     majorRequired,
     commonGeneral,
     advancedGeneral,
+    generalSelection,
     missingMajorRequired,
     missingGeneralRequirements,
     certificationSatisfied,

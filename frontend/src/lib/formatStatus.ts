@@ -11,6 +11,8 @@ export function formatStatusSummary(current: CalculatedStatus, projected: Calcul
     status.missingGeneralRequirements
       .map((requirement) => `${requirement.label}: ${requirement.details.join(", ")}`)
       .join(" / ") || "없음";
+  const generalSelectionLine = (status: CalculatedStatus) =>
+    `일반선택: ${status.generalSelection.completed}/${status.generalSelection.limit} (졸업학점 반영 ${status.generalSelection.applied})`;
 
   return [
     "[현재 이수완료 기준]",
@@ -20,6 +22,7 @@ export function formatStatusSummary(current: CalculatedStatus, projected: Calcul
     line(current.majorRequired),
     line(current.commonGeneral),
     line(current.advancedGeneral),
+    generalSelectionLine(current),
     `졸업자격인증제: ${current.certificationSatisfied ? "충족" : "미충족"}`,
     `미이수 전공필수: ${missing}`,
     `미이수 교양요건: ${generalMissing(current)}`,
@@ -32,6 +35,7 @@ export function formatStatusSummary(current: CalculatedStatus, projected: Calcul
     line(projected.majorRequired),
     line(projected.commonGeneral),
     line(projected.advancedGeneral),
+    generalSelectionLine(projected),
     `미이수 전공필수: ${missingProjected}`,
     `미이수 교양요건: ${generalMissing(projected)}`,
     `졸업 가능 여부: ${projected.isGraduationReady ? "예" : "아니오"}`,

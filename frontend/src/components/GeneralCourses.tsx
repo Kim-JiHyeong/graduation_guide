@@ -10,6 +10,11 @@ import { useCourseSearch } from "@/hooks/useCourseSearch";
 import CourseSearchBar from "./CourseSearchBar";
 import CourseStatusPicker from "./CourseStatusPicker";
 
+const GENERAL_SELECTION_AREA = {
+  areaId: "general_selection",
+  areaName: "일반선택",
+};
+
 function groupByArea(courses: GeneralCourseDef[]) {
   const groups: { areaId: string; areaName: string; courses: GeneralCourseDef[] }[] = [];
   for (const course of courses) {
@@ -49,16 +54,29 @@ export default function GeneralCourses({
   const [name, setName] = useState("");
   const [credits, setCredits] = useState("");
   const [status, setStatus] = useState<CourseTakeStatus>("completed");
+  const [areaId, setAreaId] = useState("");
+  const groupedCourses = groupByArea(catalog);
+  const areaOptions = [
+    ...groupedCourses.map(({ areaId: id, areaName }) => ({ areaId: id, areaName })),
+    GENERAL_SELECTION_AREA,
+  ];
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!name.trim() || !credits) return;
-    onAdd({ name: name.trim(), credits: Number(credits), status });
+    const selectedArea = areaOptions.find((area) => area.areaId === areaId);
+    if (!name.trim() || !credits || !selectedArea) return;
+    onAdd({
+      name: name.trim(),
+      credits: Number(credits),
+      status,
+      areaId: selectedArea.areaId,
+      areaName: selectedArea.areaName,
+    });
     setName("");
     setCredits("");
+    setAreaId("");
   }
 
-  const groupedCourses = groupByArea(catalog);
   const searchItems = useMemo(
     () => [
       ...catalog.map((course) => ({
@@ -162,6 +180,21 @@ export default function GeneralCourses({
           onChange={(e) => setCredits(e.target.value)}
         />
         <select
+          required
+          className="min-w-[190px] flex-1 rounded-lg border border-border bg-bg-subtle px-2 py-2 text-sm"
+          value={areaId}
+          onChange={(e) => setAreaId(e.target.value)}
+        >
+          <option value="" disabled>
+            구분 선택
+          </option>
+          {areaOptions.map((area) => (
+            <option key={area.areaId} value={area.areaId}>
+              {area.areaName}
+            </option>
+          ))}
+        </select>
+        <select
           className="rounded-lg border border-border bg-bg-subtle px-2 py-2 text-sm"
           value={status}
           onChange={(e) => setStatus(e.target.value as CourseTakeStatus)}
@@ -194,6 +227,9 @@ export default function GeneralCourses({
           >
             <span className="text-sm font-medium text-text-h">
               {c.name} <span className="text-text/50">· {c.credits}학점</span>
+              <span className="ml-2 text-xs font-normal text-text/50">
+                {c.areaName}
+              </span>
             </span>
             <div className="flex items-center gap-2">
               <select
