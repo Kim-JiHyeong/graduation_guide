@@ -107,11 +107,22 @@ export default function Dashboard({
         <h3 className="mb-4 text-base font-bold text-text-h">
           {includePlanned ? "📈 수강예정 과목 포함 현황" : "📊 현재 이수 현황"}
         </h3>
+        <MetricCard icon="🎓" status={status.total} />
+        <p className="mt-2 text-xs text-text/60">
+          일반선택은 최대 20학점까지만 이수할 수 있습니다.
+        </p>
+
+        <h4 className="mb-2 mt-5 text-sm font-bold text-text-h">전공</h4>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <MetricCard icon="🎓" status={status.total} />
           <MetricCard icon="🗂️" status={status.major} />
           <MetricCard icon="✅" status={status.majorRequired} />
+        </div>
+
+        <h4 className="mb-2 mt-5 text-sm font-bold text-text-h">교양</h4>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <MetricCard icon="🎨" status={status.general} />
+          <MetricCard icon="📘" status={status.commonGeneral} />
+          <MetricCard icon="📚" status={status.advancedGeneral} />
         </div>
 
         {status.missingMajorRequired.length > 0 && (
@@ -129,6 +140,30 @@ export default function Dashboard({
             </ul>
           </div>
         )}
+
+        <div className="mt-5">
+          <h4 className="mb-2 text-sm font-bold text-text-h">미이수 교양요건</h4>
+          {status.missingGeneralRequirements.length > 0 ? (
+            <ul className="flex flex-col gap-2">
+              {status.missingGeneralRequirements.map((requirement) => (
+                <li key={requirement.id} className="rounded-lg bg-bg-subtle px-3 py-2">
+                  <p className="text-sm font-semibold text-text-h">{requirement.label}</p>
+                  <ul className="mt-1 flex flex-col gap-0.5">
+                    {requirement.details.map((detail) => (
+                      <li key={detail} className="text-xs text-danger">
+                        · {detail}
+                      </li>
+                    ))}
+                  </ul>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="rounded-lg bg-success-bg px-3 py-2 text-sm font-semibold text-success">
+              모든 교양 최소 이수요건을 충족했습니다.
+            </p>
+          )}
+        </div>
       </div>
 
       <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">

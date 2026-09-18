@@ -7,6 +7,10 @@ export function formatStatusSummary(current: CalculatedStatus, projected: Calcul
   const missing = current.missingMajorRequired.map((c) => c.name).join(", ") || "없음";
   const missingProjected =
     projected.missingMajorRequired.map((c) => c.name).join(", ") || "없음";
+  const generalMissing = (status: CalculatedStatus) =>
+    status.missingGeneralRequirements
+      .map((requirement) => `${requirement.label}: ${requirement.details.join(", ")}`)
+      .join(" / ") || "없음";
 
   return [
     "[현재 이수완료 기준]",
@@ -14,8 +18,11 @@ export function formatStatusSummary(current: CalculatedStatus, projected: Calcul
     line(current.general),
     line(current.major),
     line(current.majorRequired),
+    line(current.commonGeneral),
+    line(current.advancedGeneral),
     `졸업자격인증제: ${current.certificationSatisfied ? "충족" : "미충족"}`,
     `미이수 전공필수: ${missing}`,
+    `미이수 교양요건: ${generalMissing(current)}`,
     `졸업 가능 여부: ${current.isGraduationReady ? "예" : "아니오"}`,
     "",
     "[수강예정 과목까지 포함한 기준]",
@@ -23,7 +30,10 @@ export function formatStatusSummary(current: CalculatedStatus, projected: Calcul
     line(projected.general),
     line(projected.major),
     line(projected.majorRequired),
+    line(projected.commonGeneral),
+    line(projected.advancedGeneral),
     `미이수 전공필수: ${missingProjected}`,
+    `미이수 교양요건: ${generalMissing(projected)}`,
     `졸업 가능 여부: ${projected.isGraduationReady ? "예" : "아니오"}`,
   ].join("\n");
 }

@@ -19,21 +19,38 @@ export default function Home() {
   const [tab, setTab] = useState<TabId>("dashboard");
 
   useEffect(() => {
-    setData(storage.loadData());
-    setReady(true);
+    const frame = window.requestAnimationFrame(() => {
+      setData(storage.loadData());
+      setReady(true);
+    });
+    return () => window.cancelAnimationFrame(frame);
   }, []);
 
   const current = useMemo(
     () =>
       data
-        ? calculateStatus(data.requirements, data.majorCourseStatus, data.generalCourses, false)
+        ? calculateStatus(
+            data.requirements,
+            data.majorCourseStatus,
+            data.generalCourseStatus,
+            data.generalCourses,
+            data.fieldTraining,
+            false
+          )
         : null,
     [data]
   );
   const projected = useMemo(
     () =>
       data
-        ? calculateStatus(data.requirements, data.majorCourseStatus, data.generalCourses, true)
+        ? calculateStatus(
+            data.requirements,
+            data.majorCourseStatus,
+            data.generalCourseStatus,
+            data.generalCourses,
+            data.fieldTraining,
+            true
+          )
         : null,
     [data]
   );
@@ -71,20 +88,34 @@ export default function Home() {
           <MajorCourses
             courses={data.requirements.majorCourses}
             statusMap={data.majorCourseStatus}
+            fieldTraining={data.fieldTraining}
             onChangeStatus={(courseId, status) =>
               setData(storage.setMajorCourseStatus(courseId, status))
+            }
+            onReset={() => setData(storage.resetMajorCourses())}
+            onChangeFieldTrainingStatus={(status) =>
+              setData(storage.setFieldTrainingStatus(status))
+            }
+            onChangeFieldTrainingCredits={(credits) =>
+              setData(storage.setFieldTrainingCredits(credits))
             }
           />
         )}
 
         {tab === "general" && (
           <GeneralCourses
+            catalog={data.requirements.generalCourseCatalog}
+            statusMap={data.generalCourseStatus}
             courses={data.generalCourses}
+            onChangeCatalogStatus={(courseId, status) =>
+              setData(storage.setGeneralCourseStatus(courseId, status))
+            }
             onAdd={(entry) => setData(storage.addGeneralCourse(entry))}
             onRemove={(id) => setData(storage.removeGeneralCourse(id))}
             onChangeStatus={(id, status) =>
               setData(storage.updateGeneralCourseStatus(id, status))
             }
+            onReset={() => setData(storage.resetGeneralCourses())}
           />
         )}
 

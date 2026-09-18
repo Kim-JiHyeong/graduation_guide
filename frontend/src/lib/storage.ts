@@ -11,7 +11,7 @@ export function loadData(): StudentData | null {
   if (!isBrowser()) return null;
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? (JSON.parse(raw) as StudentData) : null;
+    return raw ? normalizeData(JSON.parse(raw) as Partial<StudentData>) : null;
   } catch {
     return null;
   }
@@ -22,12 +22,47 @@ function save(data: StudentData) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 }
 
+function normalizeData(data: Partial<StudentData>): StudentData {
+  const admissionYear = data.requirements?.admissionYear ?? 2022;
+  const requirements = buildRequirements(admissionYear);
+  const scoreByArea = new Map(
+    data.requirements?.certificationAreas?.map((a) => [a.id, a.score]) ?? []
+  );
+  const fieldTrainingCredits = Number(data.fieldTraining?.credits);
+  const fieldTrainingStatus = data.fieldTraining?.status;
+
+  return {
+    requirements: {
+      ...requirements,
+      certificationAreas: requirements.certificationAreas.map((a) => ({
+        ...a,
+        score: scoreByArea.get(a.id) ?? a.score,
+      })),
+    },
+    majorCourseStatus: data.majorCourseStatus ?? {},
+    generalCourseStatus: data.generalCourseStatus ?? {},
+    generalCourses: data.generalCourses ?? [],
+    fieldTraining: {
+      credits:
+        Number.isFinite(fieldTrainingCredits) && fieldTrainingCredits >= 0
+          ? fieldTrainingCredits
+          : 0,
+      status:
+        fieldTrainingStatus === "completed" || fieldTrainingStatus === "planned"
+          ? fieldTrainingStatus
+          : null,
+    },
+  };
+}
+
 // 개인정보(학번 뒷자리, 이름 등)는 저장하지 않는다 — 입학년도(연도)만 선택해서 저장.
 export function initData(admissionYear: number): StudentData {
   const data: StudentData = {
     requirements: buildRequirements(admissionYear),
     majorCourseStatus: {},
+    generalCourseStatus: {},
     generalCourses: [],
+    fieldTraining: { credits: 0, status: null },
   };
   save(data);
   return data;
@@ -38,7 +73,9 @@ export function changeAdmissionYear(admissionYear: number): StudentData {
   const next: StudentData = {
     requirements: buildRequirements(admissionYear),
     majorCourseStatus: current?.majorCourseStatus ?? {},
+    generalCourseStatus: current?.generalCourseStatus ?? {},
     generalCourses: current?.generalCourses ?? [],
+    fieldTraining: current?.fieldTraining ?? { credits: 0, status: null },
   };
   save(next);
   return next;
@@ -57,6 +94,70 @@ export function setMajorCourseStatus(
     delete next[courseId];
   }
   const updated = { ...data, majorCourseStatus: next };
+  save(updated);
+  return updated;
+}
+
+export function setGeneralCourseStatus(
+  courseId: string,
+  status: CourseTakeStatus | null
+): StudentData {
+  const data = loadData();
+  if (!data) throw new Error("초기화되지 않았습니다.");
+  const next = { ...data.generalCourseStatus };
+  if (status) {
+    next[courseId] = status;
+  } else {
+    delete next[courseId];
+  }
+  const updated = { ...data, generalCourseStatus: next };
+  save(updated);
+  return updated;
+}
+
+export function resetMajorCourses(): StudentData {
+  const data = loadData();
+  if (!data) throw new Error("초기화되지 않았습니다.");
+  const updated = {
+    ...data,
+    majorCourseStatus: {},
+    fieldTraining: { credits: 0, status: null },
+  };
+  save(updated);
+  return updated;
+}
+
+export function setFieldTrainingStatus(status: CourseTakeStatus | null): StudentData {
+  const data = loadData();
+  if (!data) throw new Error("초기화되지 않았습니다.");
+  const updated = {
+    ...data,
+    fieldTraining: { ...data.fieldTraining, status },
+  };
+  save(updated);
+  return updated;
+}
+
+export function setFieldTrainingCredits(credits: number): StudentData {
+  const data = loadData();
+  if (!data) throw new Error("초기화되지 않았습니다.");
+  if (!Number.isFinite(credits) || credits < 0) return data;
+  const updated = {
+    ...data,
+    fieldTraining: { ...data.fieldTraining, credits },
+  };
+  save(updated);
+  return updated;
+}
+
+export function resetGeneralCourses(): StudentData {
+  const data = loadData();
+  if (!data) throw new Error("초기화되지 않았습니다.");
+  const updated = {
+    ...data,
+    generalCourseStatus: {},
+    generalCourses: [],
+  };
   save(updated);
   return updated;
 }
