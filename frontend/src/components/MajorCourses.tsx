@@ -40,6 +40,7 @@ function CourseRow({
   expanded,
   onToggleExpanded,
   highlighted,
+  onClearHighlight,
 }: {
   course: MajorCourseDef;
   statusMap: Record<string, CourseTakeStatus>;
@@ -47,6 +48,7 @@ function CourseRow({
   expanded: boolean;
   onToggleExpanded: () => void;
   highlighted: boolean;
+  onClearHighlight: () => void;
 }) {
   const equivalents = getVisibleEquivalents(course);
   const completedEquivalentCount = equivalents.filter(
@@ -59,6 +61,7 @@ function CourseRow({
   return (
     <li
       id={`major-course-${course.id}`}
+      onClick={highlighted ? onClearHighlight : undefined}
       className={`scroll-mt-36 rounded-lg bg-bg-subtle px-3 py-2 transition-shadow ${
         highlighted ? "ring-2 ring-accent" : ""
       }`}
@@ -218,6 +221,7 @@ export default function MajorCourses({
             expanded={expandedCourseIds.has(c.id)}
             onToggleExpanded={() => toggleExpanded(c.id)}
             highlighted={courseSearch.highlightedId === c.id}
+            onClearHighlight={courseSearch.clearHighlight}
           />
         ))}
       </ul>
@@ -233,10 +237,16 @@ export default function MajorCourses({
             expanded={expandedCourseIds.has(c.id)}
             onToggleExpanded={() => toggleExpanded(c.id)}
             highlighted={courseSearch.highlightedId === c.id}
+            onClearHighlight={courseSearch.clearHighlight}
           />
         ))}
         <li
           id="major-course-field_training"
+          onClick={
+            courseSearch.highlightedId === "field_training"
+              ? courseSearch.clearHighlight
+              : undefined
+          }
           className={`scroll-mt-36 rounded-lg bg-bg-subtle px-3 py-2 transition-shadow ${
             courseSearch.highlightedId === "field_training" ? "ring-2 ring-accent" : ""
           }`}

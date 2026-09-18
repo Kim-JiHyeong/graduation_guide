@@ -112,6 +112,11 @@ export default function GeneralCourses({
               <li
                 key={course.id}
                 id={`general-course-${course.id}`}
+                onClick={
+                  courseSearch.highlightedId === course.id
+                    ? courseSearch.clearHighlight
+                    : undefined
+                }
                 className={`scroll-mt-36 flex flex-wrap items-center justify-between gap-2 rounded-lg bg-bg-subtle px-3 py-2 transition-shadow ${
                   courseSearch.highlightedId === course.id ? "ring-2 ring-accent" : ""
                 }`}
@@ -178,6 +183,11 @@ export default function GeneralCourses({
           <li
             key={c.id}
             id={`general-course-custom-${c.id}`}
+            onClick={
+              courseSearch.highlightedId === `custom-${c.id}`
+                ? courseSearch.clearHighlight
+                : undefined
+            }
             className={`scroll-mt-36 flex flex-wrap items-center justify-between gap-2 rounded-lg bg-bg-subtle px-3 py-2 transition-shadow ${
               courseSearch.highlightedId === `custom-${c.id}` ? "ring-2 ring-accent" : ""
             }`}

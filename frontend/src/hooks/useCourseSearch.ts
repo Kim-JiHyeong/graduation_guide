@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 
 export interface CourseSearchItem {
   id: string;
@@ -25,14 +25,6 @@ export function useCourseSearch(
   const [query, setQuery] = useState("");
   const [message, setMessage] = useState<string | null>(null);
   const [highlightedId, setHighlightedId] = useState<string | null>(null);
-  const highlightTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(
-    () => () => {
-      if (highlightTimer.current) clearTimeout(highlightTimer.current);
-    },
-    []
-  );
 
   function search() {
     const normalizedQuery = normalizeSearchText(query.trim());
@@ -64,9 +56,6 @@ export function useCourseSearch(
     setHighlightedId(match.id);
     setMessage(matches.length > 1 ? `${matches.length}개 중 첫 번째 교과목으로 이동했습니다.` : null);
 
-    if (highlightTimer.current) clearTimeout(highlightTimer.current);
-    highlightTimer.current = setTimeout(() => setHighlightedId(null), 1800);
-
     window.requestAnimationFrame(() => {
       window.requestAnimationFrame(() => {
         const element = document.getElementById(match.elementId);
@@ -86,6 +75,7 @@ export function useCourseSearch(
     setQuery,
     message,
     highlightedId,
+    clearHighlight: () => setHighlightedId(null),
     search,
   };
 }
