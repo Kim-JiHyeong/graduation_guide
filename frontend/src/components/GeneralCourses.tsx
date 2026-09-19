@@ -174,7 +174,7 @@ export default function GeneralCourses({
           className="w-20 rounded-lg border border-border bg-bg-subtle px-3 py-2 text-sm focus:border-accent focus:bg-card focus:outline-none focus:ring-2 focus:ring-accent-bg"
           type="number"
           min={0}
-          step={0.5}
+          step={1}
           placeholder="학점"
           value={credits}
           onChange={(e) => setCredits(e.target.value)}

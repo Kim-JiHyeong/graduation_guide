@@ -9,6 +9,62 @@ function getApiStatus(error: unknown): number | undefined {
   return typeof status === "number" ? status : undefined;
 }
 
+function getErrorCode(error: unknown): string | undefined {
+  if (typeof error !== "object" || error === null) return undefined;
+  if ("code" in error && typeof (error as { code?: unknown }).code === "string") {
+    return (error as { code: string }).code;
+  }
+  if ("cause" in error) return getErrorCode((error as { cause?: unknown }).cause);
+  if ("errors" in error && Array.isArray((error as { errors?: unknown }).errors)) {
+    for (const child of (error as { errors: unknown[] }).errors) {
+      const code = getErrorCode(child);
+      if (code) return code;
+    }
+  }
+  return undefined;
+}
+
+function getClientError(error: unknown): { message: string; status: number } {
+  const status = getApiStatus(error);
+  if (status === 401 || status === 403) {
+    return {
+      message:
+        "Gemini API 키가 유효하지 않거나 권한이 없습니다. frontend/.env.local의 GEMINI_API_KEY를 확인한 뒤 개발 서버를 다시 시작해주세요.",
+      status,
+    };
+  }
+  if (status === 404) {
+    return {
+      message:
+        "설정된 Gemini 모델을 찾을 수 없습니다. frontend/.env.local의 GEMINI_MODEL 값을 확인해주세요.",
+      status,
+    };
+  }
+  if (status === 429) {
+    return {
+      message: "Gemini 사용량 한도에 도달했거나 요청이 너무 많습니다. 잠시 뒤 다시 시도해주세요.",
+      status,
+    };
+  }
+  if (status === 503) {
+    return {
+      message: "현재 Gemini 요청이 많습니다. 잠시 후 다시 시도해주세요.",
+      status,
+    };
+  }
+  if (getErrorCode(error) === "EACCES") {
+    return {
+      message:
+        "Gemini 서버로 나가는 네트워크 요청이 차단되었습니다. 네트워크 권한 또는 방화벽 설정을 확인해주세요.",
+      status: 500,
+    };
+  }
+  return {
+    message: "AI 응답 생성 중 오류가 발생했습니다. 개발 서버 콘솔의 Gemini 오류 로그를 확인해주세요.",
+    status: 500,
+  };
+}
+
 // 졸업 가능 여부 자체는 여기서 판단하지 않는다 — 클라이언트가 calculate.ts로 계산한
 // 결과를 그대로 전달받아, AI는 그 결과를 자연어로 설명/상담하는 역할만 한다.
 export async function POST(req: NextRequest) {
@@ -67,12 +123,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ answer });
   } catch (err) {
     console.error(err);
-    if (getApiStatus(err) === 503) {
-      return NextResponse.json(
-        { error: "현재 AI 요청이 많습니다. 잠시 후 다시 시도해주세요." },
-        { status: 503 }
-      );
-    }
-    return NextResponse.json({ error: "AI 응답 생성 중 오류가 발생했습니다." }, { status: 500 });
+    const clientError = getClientError(err);
+    return NextResponse.json(
+      { error: clientError.message },
+      { status: clientError.status }
+    );
   }
 }

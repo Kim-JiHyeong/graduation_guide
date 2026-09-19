@@ -47,7 +47,8 @@ export function calculateStatus(
       majorCredits += course.credits;
     }
 
-    for (const equivalent of course.equivalents) {
+    const equivalents = Array.isArray(course.equivalents) ? course.equivalents : [];
+    for (const equivalent of equivalents) {
       if (countsAs(majorCourseStatus[equivalent.statusId], includePlanned)) {
         majorCredits += equivalent.credits;
         if (equivalent.satisfiesRequired) requiredSatisfied = true;

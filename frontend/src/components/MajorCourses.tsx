@@ -16,7 +16,8 @@ function normalizeCourseName(name: string) {
 
 function getVisibleEquivalents(course: MajorCourseDef) {
   const seen = new Set([normalizeCourseName(course.name)]);
-  return [...course.equivalents]
+  const equivalents = Array.isArray(course.equivalents) ? course.equivalents : [];
+  return [...equivalents]
     .sort((a, b) => {
       if (a.curriculumYear === null && b.curriculumYear !== null) return -1;
       if (a.curriculumYear !== null && b.curriculumYear === null) return 1;
@@ -154,7 +155,10 @@ export default function MajorCourses({
         id: course.id,
         elementId: `major-course-${course.id}`,
         primaryName: course.name,
-        alternateNames: course.equivalents.map((equivalent) => equivalent.name),
+        alternateNames: (Array.isArray(course.equivalents)
+          ? course.equivalents
+          : []
+        ).map((equivalent) => equivalent.name),
       })),
       {
         id: "field_training",
@@ -263,8 +267,8 @@ export default function MajorCourses({
               이수학점
               <input
                 type="number"
-                min={0.5}
-                step={0.5}
+                min={0}
+                step={1}
                 value={fieldTraining.credits || ""}
                 onChange={(event) => {
                   const value = event.target.value;
