@@ -81,6 +81,10 @@ export const generalCourses22: GeneralCourseDef[] = [
   { id: "g_xg0720", code: "XG0720", name: "커뮤니케이션 한국어", credits: 2, areaId: "common_global", areaName: "공통교양-글로벌 의사소통" },
   { id: "g_xg0801", code: "XG0801", name: "흙에서 배우는 삶의 지혜", credits: 2, areaId: "common_personality", areaName: "공통교양-인성" },
   { id: "g_xg0966", code: "XG0966", name: "스포츠 활동과 인성 개발", credits: 2, areaId: "common_personality", areaName: "공통교양-인성" },
+  { id: "g_xg0802", code: "XG0802", name: "사회봉사1", credits: 1, areaId: "common_personality", areaName: "공통교양-인성" },
+  { id: "g_xg0803", code: "XG0803", name: "사회봉사2", credits: 1, areaId: "common_personality", areaName: "공통교양-인성" },
+  { id: "g_xg0804", code: "XG0804", name: "해외봉사1", credits: 1, areaId: "common_personality", areaName: "공통교양-인성" },
+  { id: "g_xg0805", code: "XG0805", name: "해외봉사2", credits: 1, areaId: "common_personality", areaName: "공통교양-인성" },
   { id: "g_xg0983", code: "XG0983", name: "음악하기로배우는삶", credits: 2, areaId: "common_personality", areaName: "공통교양-인성" },
 
   { id: "g_xg0806", code: "XG0806", name: "한국의 문화 유산", credits: 2, areaId: "deep_humanities_arts", areaName: "심화교양-1영역 인문·예술" },

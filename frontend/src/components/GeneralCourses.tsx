@@ -55,11 +55,16 @@ export default function GeneralCourses({
   const [credits, setCredits] = useState("");
   const [status, setStatus] = useState<CourseTakeStatus>("completed");
   const [areaId, setAreaId] = useState("");
+  const [selectedCatalogAreaId, setSelectedCatalogAreaId] = useState("all");
   const groupedCourses = groupByArea(catalog);
   const areaOptions = [
     ...groupedCourses.map(({ areaId: id, areaName }) => ({ areaId: id, areaName })),
     GENERAL_SELECTION_AREA,
   ];
+  const visibleGroups =
+    selectedCatalogAreaId === "all"
+      ? groupedCourses
+      : groupedCourses.filter((group) => group.areaId === selectedCatalogAreaId);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -92,7 +97,10 @@ export default function GeneralCourses({
     ],
     [catalog, courses]
   );
-  const courseSearch = useCourseSearch(searchItems);
+  const courseSearch = useCourseSearch(searchItems, (item) => {
+    const matchedCatalogCourse = catalog.find((course) => course.id === item.id);
+    if (matchedCatalogCourse) setSelectedCatalogAreaId(matchedCatalogCourse.areaId);
+  });
 
   return (
     <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
@@ -122,7 +130,26 @@ export default function GeneralCourses({
         message={courseSearch.message}
       />
 
-      {groupedCourses.map((group) => (
+      <div className="mb-5 flex flex-wrap items-center gap-2">
+        <label className="text-xs font-semibold text-text/70" htmlFor="general-area-filter">
+          구분
+        </label>
+        <select
+          id="general-area-filter"
+          className="min-w-[220px] flex-1 rounded-lg border border-border bg-bg-subtle px-3 py-2 text-sm focus:border-accent focus:bg-card focus:outline-none focus:ring-2 focus:ring-accent-bg"
+          value={selectedCatalogAreaId}
+          onChange={(event) => setSelectedCatalogAreaId(event.target.value)}
+        >
+          <option value="all">전체 구분</option>
+          {groupedCourses.map((group) => (
+            <option key={group.areaId} value={group.areaId}>
+              {group.areaName}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {visibleGroups.map((group) => (
         <section key={group.areaId} className="mb-5">
           <h4 className="mb-2 text-sm font-bold text-text-h">{group.areaName}</h4>
           <ul className="flex flex-col gap-2">
